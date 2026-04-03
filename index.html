@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PataSegura 🐾</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{--bg:#f7f5f2;--surface:#ffffff;--surface2:#f1efe8;--surface3:#e8e5dd;--border:#dbd8d0;--purple:#534AB7;--purple2:#3C3489;--purple-light:#EEEDFE;--purple-mid:#AFA9EC;--teal:#0F6E56;--teal-light:#E1F5EE;--red:#E24B4A;--red-light:#FCEBEB;--green:#3B6D11;--green-light:#EAF3DE;--amber:#854F0B;--amber-light:#FAEEDA;--text:#2C2C2A;--muted:#888780;--muted2:#5F5E5A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* LOGIN */
+#screen-login{align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .paw{font-size:3rem;display:block;margin-bottom:8px}
+.login-logo h1{font-size:1.8rem;font-weight:700;color:var(--purple);letter-spacing:1px}
+.login-logo p{color:var(--muted);font-size:.85rem;margin-top:6px}
+.login-tabs{display:flex;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.login-tab{flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+.login-tab.active{background:var(--purple);color:#fff;font-weight:600}
+.login-form{display:flex;flex-direction:column;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.82rem;color:var(--muted2);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px;font-family:'Outfit',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;width:100%}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--purple)}
+.form-group textarea{resize:vertical;min-height:80px}
+.btn-login{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:var(--purple2)}
+.login-error{color:var(--red);font-size:.85rem;text-align:center;display:none;padding:8px;background:var(--red-light);border-radius:8px;border:1px solid rgba(226,75,74,.3)}
+
+/* HEADER */
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:10px}
+.app-logo{font-size:1.25rem;font-weight:700;color:var(--purple);display:flex;align-items:center;gap:6px}
+.user-badge{background:var(--purple-light);border:1px solid var(--purple-mid);border-radius:20px;padding:5px 12px;font-size:.82rem;color:var(--purple2);font-weight:500}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-family:'Outfit',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* NAV */
+.app-nav{display:flex;gap:2px;padding:3px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);flex-wrap:wrap}
+.nav-btn{padding:7px 14px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn.active{background:var(--purple);color:#fff;font-weight:600}
+.nav-btn:hover:not(.active){background:var(--surface3);color:var(--text)}
+
+/* CONTENT */
+.app-content{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
+.tab-view{display:none}
+.tab-view.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.card-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* MAP */
+#mapContainer{height:400px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:14px}
+.map-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
+.filter-chip.active{background:var(--purple-light);border-color:var(--purple-mid);color:var(--purple2);font-weight:500}
+
+/* REPORT CARDS */
+.reports-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .2s}
+.report-card:hover{border-color:var(--purple-mid)}
+.report-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.report-thumb{width:44px;height:44px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden}
+.report-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.report-name{font-size:.95rem;font-weight:600}
+.report-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
+.badge{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:20px}
+.badge-lost{background:var(--red-light);color:#791F1F}
+.badge-found{background:var(--green-light);color:#173404}
+.report-desc{font-size:.82rem;color:var(--muted2);margin-top:6px;line-height:1.5}
+.report-zone{font-size:.78rem;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:4px}
+.match-highlight{border:2px solid var(--teal);background:var(--teal-light)}
+.match-badge{font-size:.72rem;font-weight:600;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal);border-radius:20px;padding:2px 8px;margin-top:6px;display:inline-block}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.type-btn{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s;text-align:center}
+.type-btn.active-lost{background:var(--red-light);border-color:rgba(226,75,74,.4);color:#791F1F;font-weight:600}
+.type-btn.active-found{background:var(--green-light);border-color:rgba(59,109,17,.4);color:#173404;font-weight:600}
+.photo-preview{width:100%;height:120px;border-radius:10px;border:1.5px dashed var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative}
+.photo-preview img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:.82rem}
+.photo-placeholder span{font-size:28px}
+.btn-primary{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;width:100%}
+.btn-primary:hover{background:var(--purple2)}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .2s;width:100%}
+.btn-secondary:hover{border-color:var(--purple);color:var(--purple)}
+.btn-danger-full{background:var(--red-light);color:#791F1F;border:1px solid rgba(226,75,74,.3);border-radius:10px;padding:11px 20px;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;width:100%;transition:all .2s}
+.btn-danger-full:hover{background:rgba(226,75,74,.2)}
+
+/* FICHA DETALLE */
+.ficha-img{width:100%;height:200px;border-radius:12px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:14px;overflow:hidden}
+.ficha-img img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.ficha-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.ficha-name{font-size:1.4rem;font-weight:700}
+.ficha-sub{font-size:.85rem;color:var(--muted);margin-top:3px}
+.ficha-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.meta-chip{font-size:.78rem;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;color:var(--muted2)}
+.ficha-desc{font-size:.9rem;line-height:1.7;color:var(--text);margin-bottom:14px}
+.matches-section{background:var(--teal-light);border:1px solid var(--teal);border-radius:12px;padding:14px;margin-bottom:14px}
+.matches-title{font-size:.85rem;font-weight:600;color:var(--teal);margin-bottom:10px}
+.match-item{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:6px;border:0.5px solid var(--border);cursor:pointer}
+.match-item:hover{border-color:var(--teal)}
+.match-item-name{font-size:.88rem;font-weight:600}
+.match-item-sub{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:420px}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{max-width:75%;padding:8px 12px;border-radius:12px;font-size:.88rem;line-height:1.5}
+.msg-in{background:var(--surface2);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-out{background:var(--purple);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg-meta{font-size:.7rem;opacity:.65;margin-top:3px}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.chat-input-row input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;color:var(--text)}
+.chat-input-row input:focus{border-color:var(--purple)}
+.btn-send{background:var(--purple);color:#fff;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0}
+
+/* ADMIN */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.stat-card{background:var(--surface2);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-size:2rem;font-weight:700;color:var(--purple)}
+.stat-lbl{font-size:.78rem;color:var(--muted);margin-top:4px}
+.report-admin-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px}
+.btn-sm-danger{background:var(--red-light);color:#791F1F;border:1px solid rgba(226,75,74,.3);border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+.btn-sm-resolve{background:var(--green-light);color:#173404;border:1px solid rgba(59,109,17,.3);border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+
+/* MISC */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 22px;font-size:.88rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--teal);color:var(--teal)}
+.toast.error{border-color:var(--red);color:var(--red)}
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:9999;transition:opacity .4s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-state .icon{font-size:3rem;margin-bottom:12px}
+.empty-state p{font-size:.9rem}
+.section-back{display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;color:var(--purple);font-size:.9rem;font-weight:500}
+.qr-info{background:var(--purple-light);border:1px solid var(--purple-mid);border-radius:10px;padding:12px 14px;font-size:.82rem;color:var(--purple2);margin-top:10px;line-height:1.6}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+@media(max-width:600px){.app-content{padding:12px}.form-row{grid-template-columns:1fr}.reports-list{grid-template-columns:1fr}.app-header{padding:10px 14px}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="font-size:.9rem;color:var(--muted);margin-top:4px">Cargando PataSegura...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="paw">🐾</span>
+      <h1>PataSegura</h1>
+      <p>Encontrá o reportá mascotas perdidas</p>
+    </div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchTab('user')">Ingresar</button>
+      <button class="login-tab" onclick="switchTab('register')">Registrarme</button>
+      <button class="login-tab" onclick="switchTab('admin')">Admin</button>
+    </div>
+
+    <!-- Login -->
+    <div id="form-login" class="login-form">
+      <div class="form-group"><label>Email</label><input type="text" id="loginEmail" placeholder="tu@email.com"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+      <div class="login-error" id="loginError">Email o contraseña incorrectos.</div>
+      <button class="btn-login" onclick="loginUser()">Entrar 🚀</button>
+    </div>
+
+    <!-- Registro -->
+    <div id="form-register" class="login-form" style="display:none">
+      <div class="form-group"><label>Tu nombre</label><input type="text" id="regName" placeholder="Ej: María García"></div>
+      <div class="form-group"><label>Email</label><input type="text" id="regEmail" placeholder="tu@email.com"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 6 caracteres"></div>
+      <div class="form-group"><label>Zona / Barrio</label><input type="text" id="regZone" placeholder="Ej: Palermo, CABA"></div>
+      <div class="login-error" id="regError">Completá todos los campos.</div>
+      <button class="btn-login" onclick="registerUser()">Crear cuenta</button>
+    </div>
+
+    <!-- Admin -->
+    <div id="form-admin" class="login-form" style="display:none">
+      <div class="form-group"><label>Contraseña de administrador</label><input type="password" id="adminPass" placeholder="••••••••"></div>
+      <div class="login-error" id="adminError">Contraseña incorrecta.</div>
+      <button class="btn-login" onclick="loginAdmin()">Entrar como Admin ⚙️</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="screen" id="screen-app">
+  <header class="app-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="app-logo">🐾 PataSegura</div>
+      <div class="user-badge" id="headerUser"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="app-nav">
+        <button class="nav-btn active" id="navMapa" onclick="showTab('mapa',this)">🗺️ Mapa</button>
+        <button class="nav-btn" id="navReportar" onclick="showTab('reportar',this)">➕ Reportar</button>
+        <button class="nav-btn" id="navMisReportes" onclick="showTab('misreportes',this)">🐾 Mis reportes</button>
+        <button class="nav-btn" id="navAdmin" onclick="showTab('admin',this)" style="display:none">⚙️ Admin</button>
+      </div>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="app-content">
+
+    <!-- MAPA -->
+    <div class="tab-view active" id="tab-mapa">
+      <div class="map-filters">
+        <button class="filter-chip active" onclick="setFilter('todos',this)">Todos</button>
+        <button class="filter-chip" onclick="setFilter('perdido',this)">🔴 Perdidos</button>
+        <button class="filter-chip" onclick="setFilter('hallado',this)">🟢 Hallados</button>
+      </div>
+      <div id="mapContainer"></div>
+      <div class="reports-list" id="reportsList"></div>
+    </div>
+
+    <!-- REPORTAR -->
+    <div class="tab-view" id="tab-reportar">
+      <div class="card">
+        <div class="card-title">➕ Publicar nuevo reporte</div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>¿Qué querés reportar?</label>
+          <div class="type-toggle">
+            <button class="type-btn active-lost" id="typeLost" onclick="setType('perdido')">🔴 Perdí mi mascota</button>
+            <button class="type-btn" id="typeFound" onclick="setType('hallado')">🟢 Encontré una</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>Foto de la mascota</label>
+          <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
+            <div class="photo-placeholder"><span>📷</span>Tocá para agregar foto</div>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group"><label>Nombre de la mascota</label><input type="text" id="rNombre" placeholder="Ej: Rocky"></div>
+          <div class="form-group"><label>Especie</label>
+            <select id="rEspecie"><option value="perro">🐕 Perro</option><option value="gato">🐈 Gato</option><option value="otro">Otro</option></select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group"><label>Raza</label><input type="text" id="rRaza" placeholder="Ej: Golden Retriever"></div>
+          <div class="form-group"><label>Color</label><input type="text" id="rColor" placeholder="Ej: Dorado"></div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group"><label>Sexo</label>
+            <select id="rSexo"><option value="">No sé</option><option value="macho">Macho</option><option value="hembra">Hembra</option></select>
+          </div>
+          <div class="form-group"><label>Edad aproximada</label><input type="text" id="rEdad" placeholder="Ej: 3 años"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>Zona / Barrio donde ocurrió</label>
+          <input type="text" id="rZona" placeholder="Ej: Villa Urquiza, CABA">
+        </div>
+        <div class="form-group" style="margin-bottom:18px">
+          <label>Descripción (señas, collar, comportamiento...)</label>
+          <textarea id="rDesc" placeholder="Ej: Lleva collar rojo, responde al nombre Rocky, muy sociable..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="submitReport()">Publicar alerta 🐾</button>
+      </div>
+    </div>
+
+    <!-- MIS REPORTES -->
+    <div class="tab-view" id="tab-misreportes">
+      <div id="misReportesContent"></div>
+    </div>
+
+    <!-- FICHA DETALLE (pantalla dinámica) -->
+    <div class="tab-view" id="tab-ficha">
+      <div class="section-back" onclick="showTab('mapa',document.getElementById('navMapa'))">← Volver al mapa</div>
+      <div id="fichaContent"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="tab-view" id="tab-chat">
+      <div class="section-back" id="chatBack">← Volver</div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+          <div style="font-size:22px" id="chatAvatar">🐕</div>
+          <div><div style="font-weight:600;font-size:.95rem" id="chatTitle">Chat</div><div style="font-size:.75rem;color:var(--muted)" id="chatSub"></div></div>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Escribí un mensaje..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="btn-send" onclick="sendMessage()">↑</button>
+          </div>
+        </div>
+      </div>
+      <div class="qr-info">🔗 <strong>Tip:</strong> Podés compartir el link de este reporte para que más personas lo vean y ayuden a encontrar la mascota.</div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="tab-view" id="tab-admin">
+      <div class="card">
+        <div class="card-title">📊 Estadísticas generales</div>
+        <div class="admin-grid" id="adminStats"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🐾 Todos los reportes</div>
+        <div id="adminReports"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔑 Cambiar contraseña admin</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="password" id="newAdminPass" placeholder="Nueva contraseña" style="flex:1;min-width:180px">
+          <button class="btn-primary" style="width:auto;padding:10px 20px" onclick="changeAdminPass()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4Dg8mBfHxwvd_eY6NYVCHr-ingE8T5rE",
+  authDomain: "patasegura.firebaseapp.com",
+  projectId: "patasegura",
+  storageBucket: "patasegura.firebasestorage.app",
+  messagingSenderId: "636555954468",
+  appId: "1:636555954468:web:2c635c8570573f7fb5cbb1"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let currentUser = null;
+let allReports = [];
+let currentFilter = 'todos';
+let currentType = 'perdido';
+let currentReportId = null;
+let currentChatUnsub = null;
+let map = null;
+let mapMarkers = [];
+let adminPassword = 'admin2026';
+let photoBase64 = null;
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const cfgSnap = await getDoc(doc(db, 'config', 'main'));
+    if (cfgSnap.exists() && cfgSnap.data().adminPassword) {
+      adminPassword = cfgSnap.data().adminPassword;
+    }
+  } catch(e) {}
+
+  const saved = localStorage.getItem('ps_session');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      await enterApp();
+      return;
+    } catch(e) { localStorage.removeItem('ps_session'); }
+  }
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+// ── AUTH ───────────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  ['form-login','form-register','form-admin'].forEach(f => document.getElementById(f).style.display = 'none');
+  document.getElementById('form-'+tab === 'form-user' ? 'form-login' : 'form-'+tab).style.display = 'flex';
+  document.querySelectorAll('.login-tab').forEach((b,i) => b.classList.toggle('active', i === ['user','register','admin'].indexOf(tab)));
+  // fix: map tab names correctly
+  const map2 = {user:'login', register:'register', admin:'admin'};
+  ['form-login','form-register','form-admin'].forEach(f => document.getElementById(f).style.display = 'none');
+  document.getElementById('form-' + map2[tab]).style.display = 'flex';
+  ['loginError','regError','adminError'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+
+window.loginUser = async function() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  err.style.display = 'none';
+  if (!email || !pass) { err.textContent = 'Completá email y contraseña.'; err.style.display = 'block'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', email));
+    if (!snap.exists() || snap.data().password !== btoa(pass)) {
+      err.textContent = 'Email o contraseña incorrectos.'; err.style.display = 'block'; return;
+    }
+    currentUser = { email, name: snap.data().name, zone: snap.data().zone, isAdmin: false };
+    localStorage.setItem('ps_session', JSON.stringify(currentUser));
+    await enterApp();
+  } catch(e) { err.textContent = 'Error de conexión. Intentá de nuevo.'; err.style.display = 'block'; }
+}
+
+window.registerUser = async function() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('regPass').value;
+  const zone = document.getElementById('regZone').value.trim();
+  const err = document.getElementById('regError');
+  err.style.display = 'none';
+  if (!name || !email || !pass || !zone) { err.textContent = 'Completá todos los campos.'; err.style.display = 'block'; return; }
+  if (pass.length < 6) { err.textContent = 'La contraseña debe tener al menos 6 caracteres.'; err.style.display = 'block'; return; }
+  if (!email.includes('@')) { err.textContent = 'Ingresá un email válido.'; err.style.display = 'block'; return; }
+  try {
+    const existing = await getDoc(doc(db, 'users', email));
+    if (existing.exists()) { err.textContent = 'Ese email ya está registrado.'; err.style.display = 'block'; return; }
+    await setDoc(doc(db, 'users', email), { name, email, password: btoa(pass), zone, createdAt: new Date().toISOString() });
+    currentUser = { email, name, zone, isAdmin: false };
+    localStorage.setItem('ps_session', JSON.stringify(currentUser));
+    await enterApp();
+  } catch(e) { err.textContent = 'Error al registrar. Intentá de nuevo.'; err.style.display = 'block'; }
+}
+
+window.loginAdmin = function() {
+  const pass = document.getElementById('adminPass').value;
+  const err = document.getElementById('adminError');
+  if (pass !== adminPassword) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  currentUser = { name: 'Administrador', email: 'admin', isAdmin: true };
+  localStorage.setItem('ps_session', JSON.stringify(currentUser));
+  enterApp();
+}
+
+window.logout = function() {
+  currentUser = null; allReports = [];
+  localStorage.removeItem('ps_session');
+  if (currentChatUnsub) { currentChatUnsub(); currentChatUnsub = null; }
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('navAdmin').style.display = 'none';
+  document.getElementById('adminPass').value = '';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+async function enterApp() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  document.getElementById('headerUser').textContent = currentUser.name;
+  if (currentUser.isAdmin) document.getElementById('navAdmin').style.display = '';
+  await loadReports();
+  initMap();
+  renderReportsList();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  if (currentUser.isAdmin) {
+    showTab('admin', document.getElementById('navAdmin'));
+    renderAdmin();
+  } else {
+    showTab('mapa', document.getElementById('navMapa'));
+  }
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+window.showTab = function(name, btn) {
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const tab = document.getElementById('tab-' + name);
+  if (tab) tab.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'misreportes') renderMisReportes();
+  if (name === 'mapa') { setTimeout(() => { if (map) map.invalidateSize(); }, 100); }
+}
+
+// ── MAP ────────────────────────────────────────────────────────────────────
+function initMap() {
+  if (map) return;
+  map = L.map('mapContainer').setView([-34.6037, -58.3816], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+  renderMapMarkers();
+}
+
+function renderMapMarkers() {
+  if (!map) return;
+  mapMarkers.forEach(m => m.remove());
+  mapMarkers = [];
+  const filtered = allReports.filter(r => currentFilter === 'todos' || r.tipo === currentFilter);
+  filtered.forEach(r => {
+    if (!r.lat || !r.lng) return;
+    const color = r.tipo === 'perdido' ? '#E24B4A' : '#3B6D11';
+    const icon = L.divIcon({
+      html: `<div style="width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid #fff;display:flex;align-items:center;justify-content:center;">
+        <div style="width:10px;height:10px;background:#fff;border-radius:50%;transform:rotate(45deg)"></div>
+      </div>`,
+      className: '', iconSize: [28, 28], iconAnchor: [14, 28]
+    });
+    const marker = L.marker([r.lat, r.lng], { icon }).addTo(map);
+    marker.bindPopup(`<b>${r.nombre||'Sin nombre'}</b><br>${r.tipo==='perdido'?'🔴 Perdido':'🟢 Hallado'}<br><small>${r.zona||''}</small>`);
+    marker.on('click', () => openFicha(r.id));
+    mapMarkers.push(marker);
+  });
+}
+
+window.setFilter = function(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderReportsList();
+  renderMapMarkers();
+}
+
+// ── REPORTS ────────────────────────────────────────────────────────────────
+async function loadReports() {
+  try {
+    const snap = await getDocs(collection(db, 'reports'));
+    allReports = [];
+    snap.forEach(d => allReports.push({ id: d.id, ...d.data() }));
+    allReports.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+  } catch(e) { showToast('Error al cargar reportes', 'error'); }
+}
+
+function renderReportsList() {
+  const container = document.getElementById('reportsList');
+  const filtered = allReports.filter(r => {
+    if (r.estado === 'resuelto') return false;
+    return currentFilter === 'todos' || r.tipo === currentFilter;
+  });
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🐾</div><p>No hay reportes activos en este momento.</p></div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(r => reportCardHTML(r)).join('');
+}
+
+function reportCardHTML(r) {
+  const matches = findMatches(r);
+  const matchBadge = matches.length ? `<div class="match-badge">✓ ${matches.length} posible${matches.length>1?'s':''} coincidencia${matches.length>1?'s':''}</div>` : '';
+  const thumbHTML = r.foto
+    ? `<div class="report-thumb"><img src="${r.foto}" alt="foto"></div>`
+    : `<div class="report-thumb">${r.especie==='gato'?'🐈':'🐕'}</div>`;
+  return `<div class="report-card${matches.length?' match-highlight':''}" onclick="openFicha('${r.id}')">
+    <div class="report-card-header">
+      ${thumbHTML}
+      <div style="flex:1;min-width:0">
+        <div class="report-name">${r.nombre||'Sin nombre'}</div>
+        <div class="report-sub">${r.raza||r.especie||''} · ${r.color||''}</div>
+      </div>
+      <div class="badge badge-${r.tipo}">${r.tipo==='perdido'?'Perdido':'Hallado'}</div>
+    </div>
+    <div class="report-desc">${r.descripcion||''}</div>
+    <div class="report-zone">📍 ${r.zona||'Sin zona'} · ${formatDate(r.createdAt)}</div>
+    ${matchBadge}
+  </div>`;
+}
+
+function findMatches(r) {
+  return allReports.filter(other => {
+    if (other.id === r.id) return false;
+    if (other.tipo === r.tipo) return false;
+    if (other.estado === 'resuelto') return false;
+    let score = 0;
+    if (r.especie && other.especie && r.especie === other.especie) score += 3;
+    if (r.raza && other.raza && r.raza.toLowerCase().includes(other.raza.toLowerCase().substring(0,4))) score += 2;
+    if (r.color && other.color && r.color.toLowerCase().includes(other.color.toLowerCase().substring(0,3))) score += 2;
+    if (r.zona && other.zona) {
+      const z1 = r.zona.toLowerCase().split(',')[0].trim();
+      const z2 = other.zona.toLowerCase().split(',')[0].trim();
+      if (z1 === z2) score += 3;
+    }
+    return score >= 3;
+  });
+}
+
+// ── FICHA ──────────────────────────────────────────────────────────────────
+window.openFicha = function(id) {
+  currentReportId = id;
+  const r = allReports.find(x => x.id === id);
+  if (!r) return;
+  const matches = findMatches(r);
+  const imgHTML = r.foto
+    ? `<div class="ficha-img"><img src="${r.foto}" alt="foto"></div>`
+    : `<div class="ficha-img">${r.especie==='gato'?'🐈':'🐕'}</div>`;
+  const matchesHTML = matches.length ? `
+    <div class="matches-section">
+      <div class="matches-title">✓ Posibles coincidencias encontradas</div>
+      ${matches.map(m => `<div class="match-item" onclick="openFicha('${m.id}')">
+        <div class="match-item-name">${m.tipo==='perdido'?'🔴':'🟢'} ${m.nombre||'Sin nombre'} — ${m.zona||''}</div>
+        <div class="match-item-sub">${m.raza||''} ${m.color||''} · ${formatDate(m.createdAt)}</div>
+      </div>`).join('')}
+    </div>` : '';
+  const canChat = currentUser && !currentUser.isAdmin && r.userEmail !== currentUser.email;
+  const isOwner = currentUser && r.userEmail === currentUser.email;
+  const resolvedHTML = r.estado === 'resuelto' ? `<div style="background:var(--green-light);border:1px solid var(--teal);border-radius:10px;padding:12px;text-align:center;font-weight:600;color:var(--teal);margin-bottom:14px">✅ ¡Mascota encontrada! Reporte resuelto.</div>` : '';
+  document.getElementById('fichaContent').innerHTML = `
+    ${resolvedHTML}
+    ${imgHTML}
+    <div class="ficha-header">
+      <div><div class="ficha-name">${r.nombre||'Sin nombre'}</div><div class="ficha-sub">Publicado por ${r.userName||'Anónimo'}</div></div>
+      <div class="badge badge-${r.tipo}">${r.tipo==='perdido'?'Perdido':'Hallado'}</div>
+    </div>
+    <div class="ficha-meta">
+      ${r.especie?`<div class="meta-chip">🐾 ${r.especie}</div>`:''}
+      ${r.raza?`<div class="meta-chip">${r.raza}</div>`:''}
+      ${r.color?`<div class="meta-chip">🎨 ${r.color}</div>`:''}
+      ${r.sexo?`<div class="meta-chip">${r.sexo}</div>`:''}
+      ${r.edad?`<div class="meta-chip">🗓️ ${r.edad}</div>`:''}
+    </div>
+    <div class="ficha-desc">${r.descripcion||'Sin descripción.'}</div>
+    <div class="report-zone" style="margin-bottom:14px">📍 ${r.zona||'Sin zona'} · ${formatDate(r.createdAt)}</div>
+    ${matchesHTML}
+    ${canChat ? `<button class="btn-primary" style="margin-bottom:10px" onclick="openChat('${r.id}','${(r.nombre||'mascota').replace(/'/g,"\\'")}','${r.especie||'perro'}')">💬 Contactar a quien la reportó</button>` : ''}
+    ${isOwner && r.estado !== 'resuelto' ? `<button class="btn-secondary" style="margin-bottom:8px" onclick="resolveReport('${r.id}')">✅ Marcar como resuelto (encontré a mi mascota)</button>` : ''}
+    ${isOwner ? `<button class="btn-danger-full" onclick="deleteReport('${r.id}')">🗑️ Eliminar reporte</button>` : ''}
+  `;
+  // show tab manually without touching nav
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tab-ficha').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+}
+
+window.resolveReport = async function(id) {
+  if (!confirm('¿Confirmás que encontraste a tu mascota? Esto marcará el reporte como resuelto.')) return;
+  await updateDoc(doc(db, 'reports', id), { estado: 'resuelto' });
+  await loadReports();
+  showToast('¡Qué alegría! Reporte marcado como resuelto 🎉', 'success');
+  showTab('mapa', document.getElementById('navMapa'));
+  renderReportsList();
+  renderMapMarkers();
+}
+
+window.deleteReport = async function(id) {
+  if (!confirm('¿Eliminar este reporte?')) return;
+  await deleteDoc(doc(db, 'reports', id));
+  await loadReports();
+  showToast('Reporte eliminado', 'success');
+  showTab('mapa', document.getElementById('navMapa'));
+  renderReportsList();
+  renderMapMarkers();
+}
+
+// ── FORM ───────────────────────────────────────────────────────────────────
+window.setType = function(type) {
+  currentType = type;
+  document.getElementById('typeLost').className = 'type-btn' + (type==='perdido'?' active-lost':'');
+  document.getElementById('typeFound').className = 'type-btn' + (type==='hallado'?' active-found':'');
+}
+
+window.previewPhoto = function(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoBase64 = e.target.result;
+    document.getElementById('photoPreview').innerHTML = `<img src="${photoBase64}" alt="preview">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+window.submitReport = async function() {
+  const nombre = document.getElementById('rNombre').value.trim();
+  const especie = document.getElementById('rEspecie').value;
+  const raza = document.getElementById('rRaza').value.trim();
+  const color = document.getElementById('rColor').value.trim();
+  const sexo = document.getElementById('rSexo').value;
+  const edad = document.getElementById('rEdad').value.trim();
+  const zona = document.getElementById('rZona').value.trim();
+  const descripcion = document.getElementById('rDesc').value.trim();
+  if (!zona) { showToast('Completá la zona', 'error'); return; }
+
+  // Geocode zona to get lat/lng using Nominatim (free)
+  let lat = null, lng = null;
+  try {
+    const geo = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(zona+', Argentina')}&format=json&limit=1`);
+    const geoData = await geo.json();
+    if (geoData.length) { lat = parseFloat(geoData[0].lat); lng = parseFloat(geoData[0].lon); }
+  } catch(e) {}
+
+  const report = {
+    tipo: currentType, nombre, especie, raza, color, sexo, edad, zona, descripcion,
+    foto: photoBase64 || null,
+    lat, lng,
+    estado: 'activo',
+    userEmail: currentUser.email,
+    userName: currentUser.name,
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await addDoc(collection(db, 'reports'), report);
+    showToast('¡Reporte publicado! 🐾', 'success');
+    // reset form
+    ['rNombre','rRaza','rColor','rEdad','rZona','rDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('rSexo').value = '';
+    document.getElementById('photoPreview').innerHTML = '<div class="photo-placeholder"><span>📷</span>Tocá para agregar foto</div>';
+    photoBase64 = null;
+    setType('perdido');
+    await loadReports();
+    renderReportsList();
+    renderMapMarkers();
+    showTab('mapa', document.getElementById('navMapa'));
+  } catch(e) { showToast('Error al publicar. Intentá de nuevo.', 'error'); }
+}
+
+// ── MIS REPORTES ───────────────────────────────────────────────────────────
+function renderMisReportes() {
+  const mine = allReports.filter(r => r.userEmail === currentUser.email);
+  const container = document.getElementById('misReportesContent');
+  if (!mine.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🐾</div><p>Todavía no publicaste ningún reporte.</p><button class="btn-primary" style="max-width:220px;margin:16px auto 0" onclick="showTab('reportar',document.getElementById('navReportar'))">➕ Publicar reporte</button></div>`;
+    return;
+  }
+  container.innerHTML = `<div class="reports-list">${mine.map(r => `
+    <div class="report-card" onclick="openFicha('${r.id}')">
+      <div class="report-card-header">
+        ${r.foto?`<div class="report-thumb"><img src="${r.foto}" alt="foto"></div>`:`<div class="report-thumb">${r.especie==='gato'?'🐈':'🐕'}</div>`}
+        <div style="flex:1;min-width:0">
+          <div class="report-name">${r.nombre||'Sin nombre'}</div>
+          <div class="report-sub">${r.raza||''} · ${r.zona||''}</div>
+        </div>
+        <div class="badge badge-${r.tipo}">${r.tipo==='perdido'?'Perdido':'Hallado'}</div>
+      </div>
+      ${r.estado==='resuelto'?'<div style="font-size:.78rem;color:var(--teal);font-weight:600;margin-top:6px">✅ Resuelto</div>':''}
+      <div class="report-zone">📍 ${r.zona||''} · ${formatDate(r.createdAt)}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ── CHAT ───────────────────────────────────────────────────────────────────
+window.openChat = function(reportId, reportName, especie) {
+  if (currentChatUnsub) { currentChatUnsub(); currentChatUnsub = null; }
+  const chatId = [currentUser.email, reportId].sort().join('__');
+  document.getElementById('chatAvatar').textContent = especie === 'gato' ? '🐈' : '🐕';
+  document.getElementById('chatTitle').textContent = `Chat — ${reportName}`;
+  document.getElementById('chatSub').textContent = 'Contacto sobre este reporte';
+  document.getElementById('chatBack').onclick = () => openFicha(reportId);
+  document.getElementById('chatMessages').innerHTML = '';
+
+  // show tab
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tab-chat').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('ts'));
+  currentChatUnsub = onSnapshot(q, snap => {
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    snap.forEach(d => {
+      const msg = d.data();
+      const isMe = msg.sender === currentUser.email;
+      const el = document.createElement('div');
+      el.className = `msg-bubble ${isMe?'msg-out':'msg-in'}`;
+      el.innerHTML = `${msg.text}<div class="msg-meta">${msg.senderName||''}</div>`;
+      container.appendChild(el);
+    });
+    container.scrollTop = container.scrollHeight;
+    // store chatId for sending
+    document.getElementById('chatInput').dataset.chatId = chatId;
+    document.getElementById('chatInput').dataset.reportId = reportId;
+  });
+}
+
+window.sendMessage = async function() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  const chatId = input.dataset.chatId;
+  if (!text || !chatId) return;
+  input.value = '';
+  await addDoc(collection(db, 'chats', chatId, 'messages'), {
+    text, sender: currentUser.email, senderName: currentUser.name,
+    ts: serverTimestamp()
+  });
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────────────────
+function renderAdmin() {
+  const total = allReports.length;
+  const perdidos = allReports.filter(r => r.tipo === 'perdido' && r.estado !== 'resuelto').length;
+  const hallados = allReports.filter(r => r.tipo === 'hallado' && r.estado !== 'resuelto').length;
+  const resueltos = allReports.filter(r => r.estado === 'resuelto').length;
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">Reportes totales</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${perdidos}</div><div class="stat-lbl">Perdidos activos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${hallados}</div><div class="stat-lbl">Hallados activos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--teal)">${resueltos}</div><div class="stat-lbl">Resueltos 🎉</div></div>
+  `;
+  document.getElementById('adminReports').innerHTML = allReports.map(r => `
+    <div class="report-admin-item">
+      <div style="font-size:22px">${r.especie==='gato'?'🐈':'🐕'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.9rem">${r.nombre||'Sin nombre'} <span class="badge badge-${r.tipo}">${r.tipo}</span></div>
+        <div style="font-size:.75rem;color:var(--muted)">Por ${r.userName||'?'} · ${r.zona||''} · ${formatDate(r.createdAt)}</div>
+      </div>
+      <button class="btn-sm-danger" onclick="adminDelete('${r.id}')">Eliminar</button>
+      ${r.estado!=='resuelto'?`<button class="btn-sm-resolve" onclick="adminResolve('${r.id}')">Resuelto</button>`:'<span style="font-size:.75rem;color:var(--teal)">✅</span>'}
+    </div>`).join('') || '<div style="color:var(--muted);padding:20px;text-align:center">Sin reportes aún.</div>';
+}
+
+window.adminDelete = async function(id) {
+  if (!confirm('¿Eliminar este reporte?')) return;
+  await deleteDoc(doc(db, 'reports', id));
+  await loadReports(); renderAdmin();
+  showToast('Reporte eliminado', 'success');
+}
+
+window.adminResolve = async function(id) {
+  await updateDoc(doc(db, 'reports', id), { estado: 'resuelto' });
+  await loadReports(); renderAdmin();
+  showToast('Reporte marcado como resuelto', 'success');
+}
+
+window.changeAdminPass = async function() {
+  const p = document.getElementById('newAdminPass').value.trim();
+  if (!p || p.length < 4) { showToast('Mínimo 4 caracteres', 'error'); return; }
+  adminPassword = p;
+  await setDoc(doc(db, 'config', 'main'), { adminPassword: p });
+  document.getElementById('newAdminPass').value = '';
+  showToast('Contraseña actualizada ✅', 'success');
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'hace un momento';
+  if (diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `hace ${Math.floor(diff/3600)} hs`;
+  if (diff < 172800) return 'ayer';
+  return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+}
+
+window.showToast = function(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+init();
+</script>
+</body>
+</html>
