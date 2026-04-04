@@ -7,7 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-:root{--bg:#f7f5f2;--surface:#ffffff;--surface2:#f1efe8;--surface3:#e8e5dd;--border:#dbd8d0;--purple:#534AB7;--purple2:#3C3489;--purple-light:#EEEDFE;--purple-mid:#AFA9EC;--teal:#0F6E56;--teal-light:#E1F5EE;--red:#E24B4A;--red-light:#FCEBEB;--green:#3B6D11;--green-light:#EAF3DE;--amber:#854F0B;--amber-light:#FAEEDA;--text:#2C2C2A;--muted:#888780;--muted2:#5F5E5A}
+:root{
+--bg:#F0F7F0;--surface:#ffffff;--surface2:#E8F3E8;--surface3:#D4EBD4;--border:#B8D9B8;
+--purple:#1B4332;--purple2:#0F2D20;--purple-light:#ECFDF5;--purple-mid:#6EBD8A;
+--teal:#0F6E56;--teal-light:#E1F5EE;
+--red:#E24B4A;--red-light:#FCEBEB;
+--green:#1B4332;--green-light:#ECFDF5;
+--amber:#D4A853;--amber-light:#FFF8E7;
+--primary:#1B4332;--primary2:#0F2D20;--primary-light:#ECFDF5;--primary-mid:#A8D5B5;
+--sand:#D4A853;--sand-light:#FFF8E7;
+--text:#1A2E1A;--muted:#5A7A5A;--muted2:#3D5C3D;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .screen{display:none;min-height:100vh}
@@ -59,8 +69,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px;font-family:'Outfit',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;width:100%}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--purple)}
 .form-group textarea{resize:vertical;min-height:80px}
-.btn-login{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
-.btn-login:hover{background:var(--purple2)}
+.btn-login{background:#1B4332;color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:#0F2D20}
+.btn-send{background:#1B4332;color:#fff;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0;transition:background .2s}
+.btn-send:hover{background:#0F2D20}
+.msg-out{background:#1B4332;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .login-error{color:var(--red);font-size:.85rem;text-align:center;display:none;padding:8px;background:var(--red-light);border-radius:8px;border:1px solid rgba(226,75,74,.3)}
 
 /* ── HEADER ── */
@@ -121,8 +134,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .photo-preview img{width:100%;height:100%;object-fit:cover;border-radius:9px}
 .photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:.82rem}
 .photo-placeholder span{font-size:28px}
-.btn-primary{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;width:100%}
-.btn-primary:hover{background:var(--purple2)}
+.btn-primary{background:#1B4332;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;width:100%}
+.btn-primary:hover{background:#0F2D20}
+.nav-btn.active{background:#1B4332;color:#fff;font-weight:600}
+.user-badge{background:#ECFDF5;border:1px solid #A8D5B5;border-radius:20px;padding:5px 12px;font-size:.82rem;color:#0F2D20;font-weight:500}
+.notif-btn:hover{border-color:#1B4332;background:#ECFDF5}
 .btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .2s;width:100%}
 .btn-secondary:hover{border-color:var(--purple);color:var(--purple)}
 .btn-danger-full{background:var(--red-light);color:#791F1F;border:1px solid rgba(226,75,74,.3);border-radius:10px;padding:11px 20px;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;width:100%;transition:all .2s}
@@ -174,7 +190,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 /* ── ADMIN ── */
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:4px}
 .stat-card{background:var(--surface2);border-radius:10px;padding:16px;text-align:center}
-.stat-num{font-size:2rem;font-weight:700;color:var(--purple)}
+.stat-num{font-size:2rem;font-weight:700;color:#1B4332}
+.inbox-item.unread{border-left:3px solid #1B4332;background:#ECFDF5}
+.inbox-unread-dot{width:8px;height:8px;border-radius:50%;background:#1B4332}
 .stat-lbl{font-size:.78rem;color:var(--muted);margin-top:4px}
 .report-admin-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px}
 .btn-sm-danger{background:var(--red-light);color:#791F1F;border:1px solid rgba(226,75,74,.3);border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
@@ -185,10 +203,22 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--teal);color:var(--teal)}
 .toast.error{border-color:var(--red);color:var(--red)}
-.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:9999;transition:opacity .4s}
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;z-index:9999;transition:opacity .4s}
 .loading-overlay.hidden{opacity:0;pointer-events:none}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.paws-track{position:relative;width:200px;height:52px;margin:8px 0}
+.paw-step{position:absolute;opacity:0}
+.paw-step.paw-r svg{transform:scaleX(-1)}
+.ps1{left:0px;  top:4px; animation:paw-pop 2s ease-in-out infinite; animation-delay:0s}
+.ps2{left:44px; top:20px;animation:paw-pop 2s ease-in-out infinite; animation-delay:0.25s}
+.ps3{left:88px; top:4px; animation:paw-pop 2s ease-in-out infinite; animation-delay:0.5s}
+.ps4{left:132px;top:20px;animation:paw-pop 2s ease-in-out infinite; animation-delay:0.75s}
+.ps5{left:170px;top:4px; animation:paw-pop 2s ease-in-out infinite; animation-delay:1s}
+@keyframes paw-pop{0%{opacity:0;transform:scale(.5) translateY(4px)}15%{opacity:1;transform:scale(1) translateY(0)}60%{opacity:1}80%{opacity:0}100%{opacity:0}}
+.ps2.paw-r,ps4.paw-r{animation:paw-pop-r 2s ease-in-out infinite}
+.loader-dots span{animation:blink 1.2s infinite;color:#D4A853;font-size:14px}
+.loader-dots span:nth-child(2){animation-delay:.2s}
+.loader-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 .empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
 .empty-state .icon{font-size:3rem;margin-bottom:12px}
 .section-back{display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;color:var(--purple);font-size:.9rem;font-weight:500}
@@ -199,8 +229,27 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div style="font-size:.9rem;color:var(--muted);margin-top:4px">Cargando PataSegura...</div>
+  <svg width="56" height="70" viewBox="0 0 120 148" style="margin-bottom:16px">
+    <path d="M60 0 C93 0 120 27 120 60 C120 90 60 148 60 148 C60 148 0 90 0 60 C0 27 27 0 60 0Z" fill="#1B4332"/>
+    <circle cx="60" cy="56" r="40" fill="#F0F7F0"/>
+    <ellipse cx="38" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(-30 38 34)"/>
+    <ellipse cx="51" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(-8 51 26)"/>
+    <ellipse cx="66" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(8 66 26)"/>
+    <ellipse cx="80" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(30 80 34)"/>
+    <path d="M60 78 C52 78 42 72 38 63 C34 54 36 44 42 40 C46 37 50 38 54 41 C56 43 58 45 60 45 C62 45 64 43 66 41 C70 38 74 37 78 40 C84 44 86 54 82 63 C78 72 68 78 60 78Z" fill="#1B4332"/>
+    <circle cx="60" cy="57" r="7" fill="#D4A853"/>
+  </svg>
+  <div class="paws-track">
+    <div class="paw-step ps1"><svg width="28" height="28" viewBox="0 0 120 100"><ellipse cx="38" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(-30 38 28)"/><ellipse cx="58" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(-8 58 14)"/><ellipse cx="80" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(8 80 14)"/><ellipse cx="98" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(30 98 28)"/><path d="M68 90 C54 90 38 80 34 65 C30 50 36 38 46 34 C52 31 58 34 62 39 C64 42 66 45 68 45 C70 45 72 42 74 39 C78 34 84 31 90 34 C100 38 106 50 102 65 C98 80 82 90 68 90Z" fill="#1B4332"/></svg></div>
+    <div class="paw-step ps2 paw-r"><svg width="28" height="28" viewBox="0 0 120 100"><ellipse cx="38" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(-30 38 28)"/><ellipse cx="58" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(-8 58 14)"/><ellipse cx="80" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(8 80 14)"/><ellipse cx="98" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(30 98 28)"/><path d="M68 90 C54 90 38 80 34 65 C30 50 36 38 46 34 C52 31 58 34 62 39 C64 42 66 45 68 45 C70 45 72 42 74 39 C78 34 84 31 90 34 C100 38 106 50 102 65 C98 80 82 90 68 90Z" fill="#1B4332"/></svg></div>
+    <div class="paw-step ps3"><svg width="28" height="28" viewBox="0 0 120 100"><ellipse cx="38" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(-30 38 28)"/><ellipse cx="58" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(-8 58 14)"/><ellipse cx="80" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(8 80 14)"/><ellipse cx="98" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(30 98 28)"/><path d="M68 90 C54 90 38 80 34 65 C30 50 36 38 46 34 C52 31 58 34 62 39 C64 42 66 45 68 45 C70 45 72 42 74 39 C78 34 84 31 90 34 C100 38 106 50 102 65 C98 80 82 90 68 90Z" fill="#1B4332"/></svg></div>
+    <div class="paw-step ps4 paw-r"><svg width="28" height="28" viewBox="0 0 120 100"><ellipse cx="38" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(-30 38 28)"/><ellipse cx="58" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(-8 58 14)"/><ellipse cx="80" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(8 80 14)"/><ellipse cx="98" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(30 98 28)"/><path d="M68 90 C54 90 38 80 34 65 C30 50 36 38 46 34 C52 31 58 34 62 39 C64 42 66 45 68 45 C70 45 72 42 74 39 C78 34 84 31 90 34 C100 38 106 50 102 65 C98 80 82 90 68 90Z" fill="#1B4332"/></svg></div>
+    <div class="paw-step ps5"><svg width="28" height="28" viewBox="0 0 120 100"><ellipse cx="38" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(-30 38 28)"/><ellipse cx="58" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(-8 58 14)"/><ellipse cx="80" cy="14" rx="14" ry="18" fill="#1B4332" transform="rotate(8 80 14)"/><ellipse cx="98" cy="28" rx="14" ry="18" fill="#1B4332" transform="rotate(30 98 28)"/><path d="M68 90 C54 90 38 80 34 65 C30 50 36 38 46 34 C52 31 58 34 62 39 C64 42 66 45 68 45 C70 45 72 42 74 39 C78 34 84 31 90 34 C100 38 106 50 102 65 C98 80 82 90 68 90Z" fill="#1B4332"/></svg></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px;">
+    <div style="font-size:.82rem;font-weight:600;color:#2D6A4F;letter-spacing:2px;">CARGANDO</div>
+    <div class="loader-dots"><span>●</span><span>●</span><span>●</span></div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -209,9 +258,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
   <div style="max-width:480px;width:100%;margin:0 auto;padding:32px 24px 48px;">
 
     <div style="text-align:center;margin-bottom:32px;">
-      <div style="font-size:3rem;margin-bottom:10px;">🐾</div>
-      <div style="font-size:1.9rem;font-weight:700;color:var(--purple);">PataSegura</div>
-      <div style="font-size:.9rem;color:var(--muted);margin-top:6px;line-height:1.5;">La plataforma que conecta a quienes perdieron<br>una mascota con quienes la encontraron.</div>
+      <svg width="64" height="80" viewBox="0 0 120 148" style="margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"><path d="M60 0 C93 0 120 27 120 60 C120 90 60 148 60 148 C60 148 0 90 0 60 C0 27 27 0 60 0Z" fill="#1B4332"/><circle cx="60" cy="56" r="40" fill="#F0F7F0"/><ellipse cx="38" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(-30 38 34)"/><ellipse cx="51" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(-8 51 26)"/><ellipse cx="66" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(8 66 26)"/><ellipse cx="80" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(30 80 34)"/><path d="M60 78 C52 78 42 72 38 63 C34 54 36 44 42 40 C46 37 50 38 54 41 C56 43 58 45 60 45 C62 45 64 43 66 41 C70 38 74 37 78 40 C84 44 86 54 82 63 C78 72 68 78 60 78Z" fill="#1B4332"/><circle cx="60" cy="57" r="7" fill="#D4A853"/></svg>
+      <div style="font-size:1.9rem;font-weight:700;color:#1B4332;">PataSegura</div>
+      <div style="font-size:.9rem;color:#5A7A5A;margin-top:6px;line-height:1.5;">La plataforma que conecta a quienes perdieron<br>una mascota con quienes la encontraron.</div>
     </div>
 
     <div style="margin-bottom:28px;">
@@ -240,7 +289,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;">
       <div style="display:flex;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
-        <button class="login-tab active" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:var(--purple);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;">Ingresar</button>
+        <button class="login-tab active" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:#1B4332;border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;">Ingresar</button>
         <button class="login-tab" onclick="switchAuthTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;">Registrarme</button>
         <button class="login-tab" onclick="switchAuthTab('admin')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;">Admin</button>
       </div>
@@ -293,7 +342,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 <div class="screen" id="screen-app">
   <header class="app-header">
     <div style="display:flex;align-items:center;gap:10px">
-      <div class="app-logo" onclick="showLanding()">🐾 PataSegura</div>
+      <div class="app-logo" onclick="showLanding()">
+        <svg width="28" height="35" viewBox="0 0 120 148"><path d="M60 0 C93 0 120 27 120 60 C120 90 60 148 60 148 C60 148 0 90 0 60 C0 27 27 0 60 0Z" fill="#1B4332"/><circle cx="60" cy="56" r="40" fill="#F0F7F0"/><ellipse cx="38" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(-30 38 34)"/><ellipse cx="51" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(-8 51 26)"/><ellipse cx="66" cy="26" rx="9" ry="12" fill="#1B4332" transform="rotate(8 66 26)"/><ellipse cx="80" cy="34" rx="9" ry="12" fill="#1B4332" transform="rotate(30 80 34)"/><path d="M60 78 C52 78 42 72 38 63 C34 54 36 44 42 40 C46 37 50 38 54 41 C56 43 58 45 60 45 C62 45 64 43 66 41 C70 38 74 37 78 40 C84 44 86 54 82 63 C78 72 68 78 60 78Z" fill="#1B4332"/><circle cx="60" cy="57" r="7" fill="#D4A853"/></svg>
+        PataSegura
+      </div>
       <div class="user-badge" id="headerUser"></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -315,13 +367,13 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
     <!-- INICIO (HOME) -->
     <div class="tab-view active" id="tab-home">
-      <div style="background:var(--purple);border-radius:16px;padding:24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="background:#1B4332;border-radius:16px;padding:24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
         <div>
-          <div style="font-size:.82rem;color:var(--purple-mid);margin-bottom:4px;">Bienvenido de vuelta</div>
+          <div style="font-size:.82rem;color:#A8D5B5;margin-bottom:4px;">Bienvenido de vuelta</div>
           <div style="font-size:1.5rem;font-weight:700;color:#fff;" id="homeUsername">—</div>
-          <div style="font-size:.8rem;color:var(--purple-mid);margin-top:4px;" id="homeZone"></div>
+          <div style="font-size:.8rem;color:#A8D5B5;margin-top:4px;" id="homeZone"></div>
         </div>
-        <div style="font-size:3rem;opacity:.8;">🐾</div>
+        <svg width="44" height="55" viewBox="0 0 120 148" opacity=".7"><path d="M60 0 C93 0 120 27 120 60 C120 90 60 148 60 148 C60 148 0 90 0 60 C0 27 27 0 60 0Z" fill="#F0F7F0"/><circle cx="60" cy="56" r="40" fill="#1B4332"/><ellipse cx="38" cy="34" rx="9" ry="12" fill="#F0F7F0" transform="rotate(-30 38 34)"/><ellipse cx="51" cy="26" rx="9" ry="12" fill="#F0F7F0" transform="rotate(-8 51 26)"/><ellipse cx="66" cy="26" rx="9" ry="12" fill="#F0F7F0" transform="rotate(8 66 26)"/><ellipse cx="80" cy="34" rx="9" ry="12" fill="#F0F7F0" transform="rotate(30 80 34)"/><path d="M60 78 C52 78 42 72 38 63 C34 54 36 44 42 40 C46 37 50 38 54 41 C56 43 58 45 60 45 C62 45 64 43 66 41 C70 38 74 37 78 40 C84 44 86 54 82 63 C78 72 68 78 60 78Z" fill="#F0F7F0"/><circle cx="60" cy="57" r="7" fill="#D4A853"/></svg>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
@@ -346,20 +398,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
           <div style="font-size:.88rem;font-weight:700;color:#791F1F;">Perdí mi mascota</div>
           <div style="font-size:.75rem;color:#A32D2D;margin-top:2px;opacity:.75;">Publicar alerta ahora</div>
         </button>
-        <button onclick="setType('hallado');showTab('reportar',document.getElementById('navReportar'))" style="background:var(--green-light);border:1px solid rgba(59,109,17,.3);border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;">
+        <button onclick="setType('hallado');showTab('reportar',document.getElementById('navReportar'))" style="background:#ECFDF5;border:1px solid rgba(27,67,50,.3);border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;">
           <div style="font-size:1.4rem;margin-bottom:6px;">🟢</div>
-          <div style="font-size:.88rem;font-weight:700;color:#173404;">Encontré una mascota</div>
-          <div style="font-size:.75rem;color:#27500A;margin-top:2px;opacity:.75;">Reportar mascota hallada</div>
+          <div style="font-size:.88rem;font-weight:700;color:#0F2D20;">Encontré una mascota</div>
+          <div style="font-size:.75rem;color:#1B4332;margin-top:2px;opacity:.75;">Reportar mascota hallada</div>
         </button>
-        <button onclick="showTab('mapa',document.getElementById('navMapa'))" style="background:var(--purple-light);border:1px solid var(--purple-mid);border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;">
+        <button onclick="showTab('mapa',document.getElementById('navMapa'))" style="background:#ECFDF5;border:1px solid #A8D5B5;border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;">
           <div style="font-size:1.4rem;margin-bottom:6px;">🗺️</div>
-          <div style="font-size:.88rem;font-weight:700;color:var(--purple2);">Ver el mapa</div>
-          <div style="font-size:.75rem;color:var(--purple);margin-top:2px;opacity:.75;">Reportes cerca tuyo</div>
+          <div style="font-size:.88rem;font-weight:700;color:#1B4332;">Ver el mapa</div>
+          <div style="font-size:.75rem;color:#2D6A4F;margin-top:2px;opacity:.75;">Reportes cerca tuyo</div>
         </button>
-        <button onclick="showTab('inbox',null)" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;position:relative;">
+        <button onclick="showTab('inbox',null)" style="background:#FFF8E7;border:1px solid #E8D5A0;border-radius:12px;padding:16px 14px;text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;position:relative;">
           <div style="font-size:1.4rem;margin-bottom:6px;">💬</div>
-          <div style="font-size:.88rem;font-weight:700;color:var(--text);">Mis mensajes</div>
-          <div style="font-size:.75rem;color:var(--muted);margin-top:2px;" id="homeMsgSub">Ver conversaciones</div>
+          <div style="font-size:.88rem;font-weight:700;color:#7A5800;">Mis mensajes</div>
+          <div style="font-size:.75rem;color:#D4A853;margin-top:2px;" id="homeMsgSub">Ver conversaciones</div>
         </button>
       </div>
 
@@ -1016,8 +1068,8 @@ function renderAdmin() {
   document.getElementById('adminStats').innerHTML = `
     <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">Reportes totales</div></div>
     <div class="stat-card"><div class="stat-num" style="color:var(--red)">${perdidos}</div><div class="stat-lbl">Perdidos activos</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${hallados}</div><div class="stat-lbl">Hallados activos</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--teal)">${resueltos}</div><div class="stat-lbl">Resueltos 🎉</div></div>`;
+    <div class="stat-card"><div class="stat-num" style="color:#1B4332">${hallados}</div><div class="stat-lbl">Hallados activos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#D4A853">${resueltos}</div><div class="stat-lbl">Resueltos 🎉</div></div>`;
   document.getElementById('adminReports').innerHTML = allReports.map(r=>`
     <div class="report-admin-item">
       <div style="font-size:22px">${r.especie==='gato'?'🐈':'🐕'}</div>
