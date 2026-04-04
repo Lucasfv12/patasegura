@@ -204,80 +204,90 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 </div>
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════ LANDING ═══════════════ -->
+<!-- ═══════════════ LANDING + LOGIN UNIFICADO ═══════════════ -->
 <div class="screen active" id="screen-landing">
-  <div class="landing-hero">
-    <span class="landing-logo">🐾</span>
-    <div class="landing-title">PataSegura</div>
-    <div class="landing-sub">La plataforma que conecta a quienes perdieron una mascota con quienes la encontraron.</div>
-  </div>
-  <div class="landing-actions">
-    <button class="landing-btn-big landing-btn-lost" onclick="goToRegister('perdido')">
-      <span class="btn-icon">🔴</span>
-      <span class="btn-text">
-        <span class="btn-title">Perdí mi mascota</span>
-        <span class="btn-desc">Publicá una alerta y recibí ayuda de tu comunidad</span>
-      </span>
-    </button>
-    <button class="landing-btn-big landing-btn-found" onclick="goToRegister('hallado')">
-      <span class="btn-icon">🟢</span>
-      <span class="btn-text">
-        <span class="btn-title">Encontré una mascota</span>
-        <span class="btn-desc">Reportá al animal para conectarlo con su dueño</span>
-      </span>
-    </button>
-    <button class="landing-btn-big landing-btn-map" onclick="goToMap()">
-      <span class="btn-icon">🗺️</span>
-      <span class="btn-text">
-        <span class="btn-title">Ver el mapa</span>
-        <span class="btn-desc">Explorá los reportes activos en tu zona</span>
-      </span>
-    </button>
-    <div class="landing-divider">ya tenés cuenta</div>
-    <div class="landing-login-link">¿Ya estás registrado? <span onclick="showLogin()">Iniciá sesión</span></div>
-  </div>
-  <div class="landing-stats" id="landingStats">
-    <div class="landing-stat"><div class="landing-stat-num" id="lsTotal">—</div><div class="landing-stat-lbl">Reportes activos</div></div>
-    <div class="landing-stat"><div class="landing-stat-num" id="lsResueltos">—</div><div class="landing-stat-lbl">Mascotas encontradas</div></div>
-    <div class="landing-stat"><div class="landing-stat-num" id="lsUsuarios">—</div><div class="landing-stat-lbl">Usuarios registrados</div></div>
+  <div style="max-width:480px;width:100%;margin:0 auto;padding:32px 24px 48px;">
+
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:3rem;margin-bottom:10px;">🐾</div>
+      <div style="font-size:1.9rem;font-weight:700;color:var(--purple);">PataSegura</div>
+      <div style="font-size:.9rem;color:var(--muted);margin-top:6px;line-height:1.5;">La plataforma que conecta a quienes perdieron<br>una mascota con quienes la encontraron.</div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--red-light);border:1px solid rgba(226,75,74,.25);border-radius:14px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#E24B4A;flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:.95rem;font-weight:700;color:#791F1F;">Perdí mi mascota</div>
+          <div style="font-size:.8rem;color:#A32D2D;margin-top:2px;">Publicá una alerta y recibí ayuda de tu comunidad</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--green-light);border:1px solid rgba(59,109,17,.25);border-radius:14px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#3B6D11;flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:.95rem;font-weight:700;color:#173404;">Encontré una mascota</div>
+          <div style="font-size:.8rem;color:#27500A;margin-top:2px;">Reportá al animal para conectarlo con su dueño</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--purple-light);border:1px solid var(--purple-mid);border-radius:14px;">
+        <div style="width:38px;height:38px;border-radius:10px;background:var(--purple);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🗺️</div>
+        <div>
+          <div style="font-size:.95rem;font-weight:700;color:var(--purple2);">Ver el mapa</div>
+          <div style="font-size:.8rem;color:var(--purple);margin-top:2px;">Explorá los reportes activos en tu zona</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;">
+      <div style="display:flex;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+        <button class="login-tab active" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:var(--purple);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;">Ingresar</button>
+        <button class="login-tab" onclick="switchAuthTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;">Registrarme</button>
+        <button class="login-tab" onclick="switchAuthTab('admin')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;">Admin</button>
+      </div>
+
+      <div id="form-login" class="login-form">
+        <div class="form-group"><label>Email</label><input type="text" id="loginEmail" placeholder="tu@email.com"></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+        <div class="login-error" id="loginError">Email o contraseña incorrectos.</div>
+        <button class="btn-login" onclick="loginUser()">Entrar 🚀</button>
+      </div>
+
+      <div id="form-register" class="login-form" style="display:none">
+        <div class="form-group"><label>Tu nombre</label><input type="text" id="regName" placeholder="Ej: María García"></div>
+        <div class="form-group"><label>Email</label><input type="text" id="regEmail" placeholder="tu@email.com"></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 6 caracteres"></div>
+        <div class="form-group"><label>Zona / Barrio</label><input type="text" id="regZone" placeholder="Ej: Palermo, CABA"></div>
+        <div class="login-error" id="regError">Completá todos los campos.</div>
+        <button class="btn-login" onclick="registerUser()">Crear cuenta</button>
+      </div>
+
+      <div id="form-admin" class="login-form" style="display:none">
+        <div class="form-group"><label>Contraseña de administrador</label><input type="password" id="adminPass" placeholder="••••••••"></div>
+        <div class="login-error" id="adminError">Contraseña incorrecta.</div>
+        <button class="btn-login" onclick="loginAdmin()">Entrar como Admin ⚙️</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;" id="landingStats">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.3rem;font-weight:700;color:var(--purple);" id="lsTotal">—</div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">Reportes activos</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.3rem;font-weight:700;color:var(--teal);" id="lsResueltos">—</div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">Encontradas</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.3rem;font-weight:700;color:var(--purple);" id="lsUsuarios">—</div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">Usuarios</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ═══════════════ LOGIN ═══════════════ -->
-<div class="screen" id="screen-login">
-  <div class="login-box">
-    <div class="login-back" onclick="showLanding()">← Volver al inicio</div>
-    <div class="login-logo">
-      <span class="paw">🐾</span>
-      <h1>PataSegura</h1>
-      <p id="loginSubtitle">Ingresá a tu cuenta</p>
-    </div>
-    <div class="login-tabs">
-      <button class="login-tab active" onclick="switchAuthTab('login')">Ingresar</button>
-      <button class="login-tab" onclick="switchAuthTab('register')">Registrarme</button>
-      <button class="login-tab" onclick="switchAuthTab('admin')">Admin</button>
-    </div>
-    <div id="form-login" class="login-form">
-      <div class="form-group"><label>Email</label><input type="text" id="loginEmail" placeholder="tu@email.com"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
-      <div class="login-error" id="loginError">Email o contraseña incorrectos.</div>
-      <button class="btn-login" onclick="loginUser()">Entrar 🚀</button>
-    </div>
-    <div id="form-register" class="login-form" style="display:none">
-      <div class="form-group"><label>Tu nombre</label><input type="text" id="regName" placeholder="Ej: María García"></div>
-      <div class="form-group"><label>Email</label><input type="text" id="regEmail" placeholder="tu@email.com"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 6 caracteres"></div>
-      <div class="form-group"><label>Zona / Barrio</label><input type="text" id="regZone" placeholder="Ej: Palermo, CABA"></div>
-      <div class="login-error" id="regError">Completá todos los campos.</div>
-      <button class="btn-login" onclick="registerUser()">Crear cuenta</button>
-    </div>
-    <div id="form-admin" class="login-form" style="display:none">
-      <div class="form-group"><label>Contraseña de administrador</label><input type="password" id="adminPass" placeholder="••••••••"></div>
-      <div class="login-error" id="adminError">Contraseña incorrecta.</div>
-      <button class="btn-login" onclick="loginAdmin()">Entrar como Admin ⚙️</button>
-    </div>
-  </div>
-</div>
+<!-- screen-login ya no existe como pantalla separada — todo está en screen-landing -->
+
 
 <!-- ═══════════════ APP ═══════════════ -->
 <div class="screen" id="screen-app">
@@ -514,32 +524,15 @@ let myChats = [];
 let unreadCount = 0;
 
 // ── LANDING ────────────────────────────────────────────────────────────────
-window.goToRegister = function(tipo) {
-  pendingAction = tipo;
-  showScreen('login');
-  switchAuthTab('register');
-}
-window.goToMap = function() {
-  pendingAction = 'map';
-  showScreen('login');
-  switchAuthTab('login');
-}
-window.showLogin = function() {
-  showScreen('login');
-  switchAuthTab('login');
-}
 window.showLanding = function() {
-  if (currentUser) {
-    logout();
-  } else {
-    showScreen('landing');
-  }
+  if (currentUser) logout();
+  else showScreen('landing');
 }
 
 function showScreen(name) {
-  ['landing','login','app'].forEach(s => {
+  ['landing','app'].forEach(s => {
     const el = document.getElementById('screen-' + s);
-    el.classList.toggle('active', s === name);
+    if (el) el.classList.toggle('active', s === name);
   });
 }
 
@@ -627,6 +620,7 @@ window.logout = function() {
   document.getElementById('adminPass').value = '';
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPass').value = '';
+  switchAuthTab('login');
   loadLandingStats();
 }
 
